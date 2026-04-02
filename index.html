@@ -217,18 +217,18 @@
       name = capitalizeWords(name);
       const priceMWK = priceZAR * exchangeRate;
 
-      const mutation = `
-        mutation AddProduct($name: String!, $category: String!, $zar: numeric!, $mwk: numeric!) {
-          insert_products_one(object: {
-            name: $name,
-            category: $category,
-            price_zar: $zar,
-            price_mwk: $mwk
-          }) {
-            id
-          }
-        }
-      `;
+  const mutation = `
+  mutation AddProduct($name: String!, $category: String!, $zar: float8!, $mwk: float8!) {
+    insert_products_one(object: {
+      name: $name,
+      category: $category,
+      price_zar: $zar,
+      price_mwk: $mwk
+    }) {
+      id
+    }
+  }
+`;
 
       try {
         await graphqlRequest(mutation, { name, category, zar: priceZAR, mwk: priceMWK });
