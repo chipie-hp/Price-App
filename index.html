@@ -6,8 +6,14 @@
   <title>Product Price Manager - Nhost</title>
   <style>
     :root {
-      --bg: #0f172a; --card: #1e2937; --text: #e2e8f0; --accent: #22d3ee;
-      --green: #34d399; --orange: #fb923c; --red: #f87171; --border: #334155;
+      --bg: #0f172a;
+      --card: #1e2937;
+      --text: #e2e8f0;
+      --accent: #22d3ee;
+      --green: #34d399;
+      --orange: #fb923c;
+      --red: #f87171;
+      --border: #334155;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -154,12 +160,12 @@
   </div>
 
   <script>
-    // ================== YOUR NHOST SETTINGS ==================
+    // ================== NHOST CONFIG ==================
     const SUBDOMAIN = "qbttvfivxpolezntkjwp";
     const REGION    = "eu-central-1";
     
-    // ←←← PASTE YOUR REAL ADMIN SECRET HERE (from Nhost dashboard)
-    const ADMIN_SECRET = "{{ secrets.HASURA_GRAPHQL_ADMIN_SECRET }}";   // Replace this line
+    // ←←← PASTE YOUR REAL NHOST ADMIN SECRET HERE
+    const ADMIN_SECRET = "PASTE_YOUR_REAL_NHOST_ADMIN_SECRET_HERE";   
 
     const GRAPHQL_URL = `https://${SUBDOMAIN}.graphql.${REGION}.nhost.run/v1`;
 
@@ -171,24 +177,174 @@
     };
 
     function formatNumber(num) {
-      return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return Number(num).toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      });
+    }
+
+    function capitalizeWords(str) {
+      return str.trim().replace(/\b\w/g, char => char.toUpperCase());
     }
 
     async function graphqlRequest(query, variables = {}) {
-      const res = await fetch(GRAPHQL_URL, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ query, variables })
-      });
-      const json = await res.json();
-      if (json.errors) throw new Error(json.errors[0].message);
-      return json.data;
+      try {
+        const res = await fetch(GRAPHQL_URL, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({ query, variables })
+        });
+
+        const json = await res.json();
+        if (json.errors) {
+          console.error("GraphQL Error:", json.errors);
+          throw new Error(json.errors[0].message);
+        }
+        return json.data;
+      } catch (err) {
+        console.error("Request failed:", err);
+        alert("❌ Connection error: " + err.message + "\n\nCheck your Admin Secret and open F12 Console.");
+        throw err;
+      }
     }
 
-    // The rest of the functions (loadProducts, addProduct, deleteProduct, etc.) are the same as my previous message.
-    // If you want me to send the **full complete code** with all functions included, just say "send full code".
+    // Add Product
+    async function addProduct() {
+      const nameInput = document.getElementById('product');
+      let name = nameInput.value.trim();
+      const category = document.getElementById('category').value;
+      const priceZAR = parseFloat(document.getElementById('priceZAR').value);
 
-    // For now, paste your real ADMIN_SECRET and test.
+      if (!name || isNaN(priceZAR) || priceZAR <= 0) {
+        alert("Please enter a valid product name and price in ZAR.");
+        return;
+      }
+
+      name = capitalizeWords(name);
+      const priceMWK = priceZAR * exchangeRate;
+
+      const mutation = `
+        mutation AddProduct($name: String!, $category: String!, $zar: numeric!, $mwk: numeric!) {
+          insert_products_one(object: {
+            name: $name,
+            category: $category,
+            price_zar: $zar,
+            price_mwk: $mwk
+          }) { id }
+        }
+      `;
+
+      try {
+        await graphqlRequest(mutation, { name, category, zar: priceZAR, mwk: priceMWK });
+        alert("✅ Product added successfully!");
+        nameInput.value = '';
+        document.getElementById('priceZAR').value = '';
+        loadProducts();
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    // Load Products
+    async function loadProducts() {
+      const query = `
+        query GetProducts {
+          products(order_by: {created_at: desc}) {
+            id name category price_zar price_mwk
+          }
+        }
+      `;
+
+      try {
+        const data = await graphqlRequest(query);
+        renderProducts(data.products || []);
+      } catch(e) {
+        console.error("Load failed", e);
+      }
+    }
+
+    // Render Table
+    function renderProducts(products) {
+      const tbody = document.getElementById('productBody');
+      tbody.innerHTML = '';
+
+      if (products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">No products yet.<br>Add some from South Africa ✨</td></tr>`;
+        document.getElementById('totalMWK').textContent = '0.00';
+        return;
+      }
+
+      products.forEach((p, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><span class="product-name">${p.name}</span></td>
+          <td><span class="category">${p.category}</span></td>
+          <td><span class="price-zar">R ${formatNumber(p.price_zar)}</span></td>
+          <td><span class="price-mwk">MWK ${formatNumber(p.price_mwk)}</span></td>
+          <td>
+            <div class="menu-container">
+              <button class="dots-btn" onclick="toggleMenu(${idx}); event.stopImmediatePropagation();">⋮</button>
+              <div id="menu-${idx}" class="menu">
+                <button onclick="editProduct(${p.id}); toggleMenu(${idx});">✏️ Edit</button>
+                <button onclick="deleteProduct(${p.id}); toggleMenu(${idx});" style="color:#f87171;">🗑️ Delete</button>
+              </div>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      const total = products.reduce((sum, p) => sum + Number(p.price_mwk || 0), 0);
+      document.getElementById('totalMWK').textContent = formatNumber(total);
+    }
+
+    // Delete Product
+    async function deleteProduct(id) {
+      if (!confirm("Delete this product?")) return;
+      const mutation = `mutation { delete_products_by_pk(id: ${id}) { id } }`;
+      try {
+        await graphqlRequest(mutation);
+        loadProducts();
+      } catch(e) { alert("Delete failed"); }
+    }
+
+    function editProduct(id) {
+      alert("Edit function coming soon.\nFor now, delete and re-add the product.");
+    }
+
+    function toggleMenu(idx) {
+      document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
+      const menu = document.getElementById(`menu-${idx}`);
+      if (menu) menu.classList.toggle('show');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.menu-container')) {
+        document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
+      }
+    });
+
+    function filterProducts() {
+      loadProducts();
+    }
+
+    function exportToCSV() {
+      alert("CSV Export coming soon.");
+    }
+
+    // Initialize
+    window.onload = () => {
+      if (ADMIN_SECRET.includes("PASTE_YOUR_REAL")) {
+        alert("⚠️ Please replace 'ADMIN_SECRET' with your real Nhost Admin Secret in the code!");
+      }
+      loadProducts();
+    };
+
+    // Enter key support
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addProduct();
+    });
   </script>
 </body>
 </html>
