@@ -1,337 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Price Manager - Nhost</title>
-  <style>
-    :root {
-      --bg: #0f172a; --card: #1e2937; --text: #e2e8f0; --accent: #22d3ee;
-      --green: #34d399; --orange: #fb923c; --red: #f87171; --border: #334155;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family:'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px;
-      font-size: 14px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 8px;
-      background: linear-gradient(90deg, #22d3ee, #67e8f9);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 700;
-    }
-    .subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 12px; }
-    .rate {
-      text-align: center; background: rgba(34,211,238,0.12); color: var(--accent);
-      padding: 10px 24px; border-radius: 50px; display: inline-block;
-      font-weight: 600; font-size: 14px; margin-bottom: 30px;
-      border: 1px solid rgba(34,211,238,0.3);
-    }
-    .controls {
-      max-width: 1100px; margin: 0 auto 25px;
-      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-    }
-    input, select, button {
-      padding: 12px 14px; border: none; border-radius: 10px; font-size: 14px;
-    }
-    input, select { background: #334155; color: white; }
-    #product { width: 290px; }
-    #search { width: 270px; }
-    #categoryFilter { min-width: 170px; }
-    button {
-      background: var(--green); color: white; font-weight: 600; cursor: pointer;
-      transition: all 0.3s;
-    }
-    button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(52,211,153,0.4); }
-    .export-btn { background: #6366f1; }
-    .export-btn:hover { box-shadow: 0 8px 25px rgba(99,102,241,0.4); }
-
-    .table-container {
-      max-width: 1100px; margin: 0 auto; background: var(--card);
-      border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.35);
-      border: 1px solid rgba(148,163,184,0.1);
-    }
-    table { width: 100%; border-collapse: collapse; }
-    th {
-      background: #1e2937; color: var(--accent); padding: 16px 12px;
-      text-align: left; font-weight: 600; font-size: 12px;
-      border-bottom: 2px solid #334155;
-    }
-    td {
-      padding: 16px 12px; border-bottom: 1px solid var(--border);
-      font-size: 14px; vertical-align: middle;
-    }
-    tr:hover { background: rgba(34,211,238,0.08); }
-
-    .product-name { font-size: 14px; font-weight: 600; color: white; }
-    .category { font-size: 12px; color: #94a3b8; }
-    .price-zar { font-size: 12px; color: #cbd5e1; }
-    .price-mwk { font-size: 14px; font-weight: 700; color: var(--green); }
-
-    .menu-container { position: relative; display: inline-block; }
-    .dots-btn {
-      background: none; border: none; font-size: 20px; color: #94a3b8;
-      cursor: pointer; padding: 6px 10px; border-radius: 6px;
-    }
-    .dots-btn:hover { background: rgba(148,163,184,0.15); color: white; }
-    .menu {
-      display: none; position: absolute; right: 0; top: 35px;
-      background: #1e2937; border: 1px solid #475569; border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 100; min-width: 130px;
-    }
-    .menu.show { display: block; }
-    .menu button {
-      display: block; width: 100%; padding: 12px 16px; text-align: left;
-      background: none; border: none; font-size: 14px; color: var(--text); cursor: pointer;
-    }
-    .menu button:hover { background: #334155; }
-
-    .total {
-      text-align: center; font-size: 18px; font-weight: 700; margin: 40px auto;
-      padding: 20px 40px; background: var(--card); border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 460px; color: var(--green);
-    }
-    .empty { text-align: center; color: #64748b; font-size: 14px; padding: 80px 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+    <title>Price App</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .three-dots {
+            cursor: pointer;
+            display: block;
+            height: 24px;
+            width: 24px;
+            background: url('three-dots-icon.svg') no-repeat center center;
+        }
+        .content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+    </style>
 </head>
 <body>
-  <h1>🛒 SA to Malawi</h1>
-  <p class="subtitle">Product Price Manager (Nhost)</p>
-  
-  <div class="rate">1 ZAR = <span id="rate">104.969</span> MWK</div>
-
-  <div class="controls">
-    <input type="text" id="product" placeholder="Product Name" 
-           oninput="this.value = this.value.replace(/\b\w/g, l => l.toUpperCase())">
-    <select id="category">
-      <option value="Electronics">Electronics</option>
-      <option value="Clothing">Clothing</option>
-      <option value="Groceries">Groceries</option>
-      <option value="Home">Home & Kitchen</option>
-      <option value="Other">Other</option>
-    </select>
-    <input type="number" id="priceZAR" step="0.01" placeholder="Price in ZAR">
-    <button onclick="addProduct()">Add Product</button>
-  </div>
-
-  <div class="controls">
-    <input type="text" id="search" placeholder="🔍 Search products..." onkeyup="filterProducts()">
-    <select id="categoryFilter" onchange="filterProducts()">
-      <option value="">All Categories</option>
-      <option value="Electronics">Electronics</option>
-      <option value="Clothing">Clothing</option>
-      <option value="Groceries">Groceries</option>
-      <option value="Home">Home & Kitchen</option>
-      <option value="Other">Other</option>
-    </select>
-    <button class="export-btn" onclick="exportToCSV()">Export to CSV</button>
-  </div>
-
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:40%;">Product Name</th>
-          <th style="width:18%;">Category</th>
-          <th style="width:15%;">Price (ZAR)</th>
-          <th style="width:18%;">Price (MWK)</th>
-          <th style="width:9%;">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="productBody"></tbody>
-    </table>
-  </div>
-
-  <div class="total">
-    Total in MWK: <span id="totalMWK">0.00</span>
-  </div>
-
-  <script>
-    // ================== NHOST CONFIG ==================
-    const SUBDOMAIN = "qbttvfivxpolezntkjwp";
-    const REGION    = "eu-central-1";
-    
-    // ←←← REPLACE WITH YOUR REAL ADMIN SECRET
-    const ADMIN_SECRET = "L,OR:IQL!y^x1rv:Nil4ed&:DmC4Vxqb";   
-
-    const GRAPHQL_URL = `https://${SUBDOMAIN}.graphql.${REGION}.nhost.run/v1`;
-
-    const exchangeRate = 104.969;
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': ADMIN_SECRET
-    };
-
-    function formatNumber(num) {
-      return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function capitalizeWords(str) {
-      return str.trim().replace(/\b\w/g, char => char.toUpperCase());
-    }
-
-    async function graphqlRequest(query, variables = {}) {
-      try {
-        const res = await fetch(GRAPHQL_URL, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({ query, variables })
-        });
-
-        const json = await res.json();
-
-        if (json.errors && json.errors.length > 0) {
-          const error = json.errors[0];
-          console.error("Full GraphQL Error:", error);
-          alert("GraphQL Error:\n" + (error.message || JSON.stringify(error)));
-          throw new Error(error.message || "Unknown GraphQL error");
-        }
-        return json.data;
-      } catch (err) {
-        console.error("Request failed:", err);
-        alert("Failed to connect to Nhost.\n\nCheck F12 Console for details.");
-        throw err;
-      }
-    }
-
-    // Add Product
-    async function addProduct() {
-      const nameInput = document.getElementById('product');
-      let name = nameInput.value.trim();
-      const category = document.getElementById('category').value;
-      const priceZAR = parseFloat(document.getElementById('priceZAR').value);
-
-      if (!name || isNaN(priceZAR) || priceZAR <= 0) {
-        alert("Please enter a valid product name and price in ZAR.");
-        return;
-      }
-
-      name = capitalizeWords(name);
-      const priceMWK = priceZAR * exchangeRate;
-
-  const mutation = `
-  mutation AddProduct($name: String!, $category: String!, $zar: float8!, $mwk: float8!) {
-    insert_products_one(object: {
-      name: $name,
-      category: $category,
-      price_zar: $zar,
-      price_mwk: $mwk
-    }) {
-      id
-    }
-  }
-`;
-
-      try {
-        await graphqlRequest(mutation, { name, category, zar: priceZAR, mwk: priceMWK });
-        alert("✅ Product added successfully!");
-        nameInput.value = '';
-        document.getElementById('priceZAR').value = '';
-        loadProducts();
-      } catch(e) {
-        console.error("Add Product Failed:", e);
-      }
-    }
-
-    // Load Products
-    async function loadProducts() {
-      const query = `
-        query GetProducts {
-          products(order_by: {created_at: desc}) {
-            id name category price_zar price_mwk
-          }
-        }
-      `;
-
-      try {
-        const data = await graphqlRequest(query);
-        renderProducts(data.products || []);
-      } catch(e) {
-        console.error("Load Products Failed:", e);
-      }
-    }
-
-    function renderProducts(products) {
-      const tbody = document.getElementById('productBody');
-      tbody.innerHTML = '';
-
-      if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty">No products yet.<br>Add some from South Africa ✨</td></tr>`;
-        document.getElementById('totalMWK').textContent = '0.00';
-        return;
-      }
-
-      products.forEach((p, idx) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><span class="product-name">${p.name}</span></td>
-          <td><span class="category">${p.category}</span></td>
-          <td><span class="price-zar">R ${formatNumber(p.price_zar)}</span></td>
-          <td><span class="price-mwk">MWK ${formatNumber(p.price_mwk)}</span></td>
-          <td>
-            <div class="menu-container">
-              <button class="dots-btn" onclick="toggleMenu(${idx}); event.stopImmediatePropagation();">⋮</button>
-              <div id="menu-${idx}" class="menu">
-                <button onclick="editProduct(${p.id}); toggleMenu(${idx});">✏️ Edit</button>
-                <button onclick="deleteProduct(${p.id}); toggleMenu(${idx});" style="color:#f87171;">🗑️ Delete</button>
-              </div>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      const total = products.reduce((sum, p) => sum + Number(p.price_mwk || 0), 0);
-      document.getElementById('totalMWK').textContent = formatNumber(total);
-    }
-
-    async function deleteProduct(id) {
-      if (!confirm("Delete this product?")) return;
-      const mutation = `mutation { delete_products_by_pk(id: ${id}) { id } }`;
-      try {
-        await graphqlRequest(mutation);
-        loadProducts();
-      } catch(e) { alert("Delete failed"); }
-    }
-
-    function editProduct(id) {
-      alert("Edit coming soon.\nFor now, delete and re-add.");
-    }
-
-    function toggleMenu(idx) {
-      document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
-      const menu = document.getElementById(`menu-${idx}`);
-      if (menu) menu.classList.toggle('show');
-    }
-
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.menu-container')) {
-        document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
-      }
-    });
-
-    function filterProducts() { loadProducts(); }
-    function exportToCSV() { alert("CSV export coming soon."); }
-
-    // Initialize
-    window.onload = () => {
-      if (ADMIN_SECRET.includes("PASTE_YOUR_REAL")) {
-        alert("⚠️ Please replace ADMIN_SECRET with your real Nhost Admin Secret!");
-      }
-      loadProducts();
-    };
-
-    document.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') addProduct();
-    });
-  </script>
+    <div class="menu">
+        <h1>Price App</h1>
+        <div class="three-dots"></div>
+    </div>
+    <div class="content">
+        <h2>Welcome to the Price App</h2>
+        <p>Your content goes here...</p>
+    </div>
 </body>
 </html>
