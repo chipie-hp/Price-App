@@ -6,14 +6,8 @@
   <title>Product Price Manager - Nhost</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e2937;
-      --text: #e2e8f0;
-      --accent: #22d3ee;
-      --green: #34d399;
-      --orange: #fb923c;
-      --red: #f87171;
-      --border: #334155;
+      --bg: #0f172a; --card: #1e2937; --text: #e2e8f0; --accent: #22d3ee;
+      --green: #34d399; --orange: #fb923c; --red: #f87171; --border: #334155;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -164,7 +158,7 @@
     const SUBDOMAIN = "qbttvfivxpolezntkjwp";
     const REGION    = "eu-central-1";
     
-    // ←←← PASTE YOUR REAL NHOST ADMIN SECRET HERE
+    // ←←← REPLACE WITH YOUR REAL ADMIN SECRET
     const ADMIN_SECRET = "PASTE_YOUR_REAL_NHOST_ADMIN_SECRET_HERE";   
 
     const GRAPHQL_URL = `https://${SUBDOMAIN}.graphql.${REGION}.nhost.run/v1`;
@@ -177,10 +171,7 @@
     };
 
     function formatNumber(num) {
-      return Number(num).toLocaleString('en-US', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
-      });
+      return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function capitalizeWords(str) {
@@ -196,14 +187,17 @@
         });
 
         const json = await res.json();
-        if (json.errors) {
-          console.error("GraphQL Error:", json.errors);
-          throw new Error(json.errors[0].message);
+
+        if (json.errors && json.errors.length > 0) {
+          const error = json.errors[0];
+          console.error("Full GraphQL Error:", error);
+          alert("GraphQL Error:\n" + (error.message || JSON.stringify(error)));
+          throw new Error(error.message || "Unknown GraphQL error");
         }
         return json.data;
       } catch (err) {
         console.error("Request failed:", err);
-        alert("❌ Connection error: " + err.message + "\n\nCheck your Admin Secret and open F12 Console.");
+        alert("Failed to connect to Nhost.\n\nCheck F12 Console for details.");
         throw err;
       }
     }
@@ -230,7 +224,9 @@
             category: $category,
             price_zar: $zar,
             price_mwk: $mwk
-          }) { id }
+          }) {
+            id
+          }
         }
       `;
 
@@ -241,7 +237,7 @@
         document.getElementById('priceZAR').value = '';
         loadProducts();
       } catch(e) {
-        console.error(e);
+        console.error("Add Product Failed:", e);
       }
     }
 
@@ -259,11 +255,10 @@
         const data = await graphqlRequest(query);
         renderProducts(data.products || []);
       } catch(e) {
-        console.error("Load failed", e);
+        console.error("Load Products Failed:", e);
       }
     }
 
-    // Render Table
     function renderProducts(products) {
       const tbody = document.getElementById('productBody');
       tbody.innerHTML = '';
@@ -298,7 +293,6 @@
       document.getElementById('totalMWK').textContent = formatNumber(total);
     }
 
-    // Delete Product
     async function deleteProduct(id) {
       if (!confirm("Delete this product?")) return;
       const mutation = `mutation { delete_products_by_pk(id: ${id}) { id } }`;
@@ -309,7 +303,7 @@
     }
 
     function editProduct(id) {
-      alert("Edit function coming soon.\nFor now, delete and re-add the product.");
+      alert("Edit coming soon.\nFor now, delete and re-add.");
     }
 
     function toggleMenu(idx) {
@@ -318,30 +312,23 @@
       if (menu) menu.classList.toggle('show');
     }
 
-    // Close menu when clicking outside
     document.addEventListener('click', e => {
       if (!e.target.closest('.menu-container')) {
         document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
       }
     });
 
-    function filterProducts() {
-      loadProducts();
-    }
-
-    function exportToCSV() {
-      alert("CSV Export coming soon.");
-    }
+    function filterProducts() { loadProducts(); }
+    function exportToCSV() { alert("CSV export coming soon."); }
 
     // Initialize
     window.onload = () => {
       if (ADMIN_SECRET.includes("PASTE_YOUR_REAL")) {
-        alert("⚠️ Please replace 'ADMIN_SECRET' with your real Nhost Admin Secret in the code!");
+        alert("⚠️ Please replace ADMIN_SECRET with your real Nhost Admin Secret!");
       }
       loadProducts();
     };
 
-    // Enter key support
     document.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') addProduct();
     });
