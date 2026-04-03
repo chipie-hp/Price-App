@@ -1,397 +1,538 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SA-Order — Price Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-#app{font-family:var(--font-sans);color:var(--color-text-primary);display:flex;flex-direction:column;height:600px;}
-
-.topbar{
-  flex-shrink:0;
-  border-bottom:0.5px solid var(--color-border-secondary);
-  background:var(--color-background-primary);
-  padding:12px 16px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  flex-wrap:wrap;
-}
-.brand{display:flex;flex-direction:column;}
-.brand-title{font-size:16px;font-weight:500;}
-.brand-sub{font-size:12px;color:var(--color-text-secondary);}
-.rate-pill{
-  font-size:12px;padding:4px 12px;border-radius:50px;
-  background:var(--color-background-secondary);
-  border:0.5px solid var(--color-border-secondary);
-  color:var(--color-text-secondary);
-  cursor:pointer;
-}
-.rate-pill span{color:var(--color-text-primary);font-weight:500;}
-.settings-btn{
-  font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);
-  background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);
-  color:var(--color-text-primary);cursor:pointer;
-}
-.settings-btn:hover{background:var(--color-background-tertiary);}
-
-.add-bar{
-  flex-shrink:0;
-  padding:10px 16px;
-  border-bottom:0.5px solid var(--color-border-secondary);
-  background:var(--color-background-secondary);
-  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
-}
-.filter-bar{
-  flex-shrink:0;
-  padding:8px 16px;
-  border-bottom:0.5px solid var(--color-border-secondary);
-  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
-}
-
-input,select{
-  background:var(--color-background-primary);
-  border:0.5px solid var(--color-border-secondary);
-  color:var(--color-text-primary);
-  border-radius:var(--border-radius-md);
-  padding:7px 10px;font-size:13px;outline:none;
-  font-family:var(--font-sans);
-}
-input:focus,select:focus{border-color:var(--color-border-primary);}
-select option{background:var(--color-background-primary);}
-
-.btn-primary{padding:7px 16px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:none;background:#1d9e75;color:#fff;}
-.btn-primary:hover{background:#0f6e56;}
-.btn-csv{padding:7px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);}
-.btn-csv:hover{background:var(--color-background-secondary);}
-
-.scroll-area{flex:1;overflow-y:auto;min-height:0;}
-table{width:100%;border-collapse:collapse;table-layout:fixed;}
-th{position:sticky;top:0;z-index:2;padding:10px 14px;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;border-bottom:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);}
-td{padding:11px 14px;font-size:13px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--color-background-secondary);}
-.name-cell{font-weight:500;}
-.cat-badge{font-size:11px;padding:3px 9px;border-radius:50px;background:var(--color-background-info);color:var(--color-text-info);border:0.5px solid var(--color-border-info);}
-.zar{color:var(--color-text-secondary);font-size:12px;}
-.mwk{font-weight:500;color:#1d9e75;}
-.act-btn{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:12px;padding:4px 8px;border-radius:var(--border-radius-md);}
-.act-btn:hover{background:var(--color-background-secondary);color:var(--color-text-primary);}
-.act-btn.del:hover{color:#e24b4a;}
-.empty-row td{text-align:center;padding:50px;color:var(--color-text-secondary);font-size:14px;}
-.edit-input{width:100%;background:var(--color-background-primary);border:0.5px solid var(--color-border-primary);color:var(--color-text-primary);border-radius:var(--border-radius-md);padding:5px 7px;font-size:12px;font-family:var(--font-sans);}
-
-.footer-bar{
-  flex-shrink:0;
-  padding:10px 16px;
-  border-top:0.5px solid var(--color-border-secondary);
-  background:var(--color-background-secondary);
-  display:flex;gap:12px;flex-wrap:wrap;
-}
-.stat{flex:1;min-width:110px;}
-.stat-label{font-size:11px;color:var(--color-text-secondary);}
-.stat-value{font-size:15px;font-weight:500;}
-.stat-value.green{color:#1d9e75;}
-
-.overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.35);z-index:10;align-items:center;justify-content:center;}
-.overlay.open{display:flex;}
-.modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:20px 24px;min-width:280px;max-width:380px;width:90%;}
-.modal h2{font-size:16px;font-weight:500;margin-bottom:16px;}
-.field{margin-bottom:14px;}
-.field label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;}
-.field input,.field select{width:100%;}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
-.btn-save{padding:7px 18px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:none;background:#1d9e75;color:#fff;}
-.btn-cancel{padding:7px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:none;color:var(--color-text-secondary);}
-
-.toast{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#1d9e75;color:#fff;padding:8px 18px;border-radius:50px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;z-index:20;}
-.toast.show{opacity:1;}
-.toast.err{background:#e24b4a;}
-
-.curr-flag{font-size:14px;margin-right:4px;}
-</style>
-
-<div id="app" style="position:relative;">
-
-  <div class="topbar">
-    <div class="brand">
-      <span class="brand-title">SA to Malawi</span>
-      <span class="brand-sub">Price manager</span>
-    </div>
-    <div class="rate-pill" onclick="openSettings()" title="Click to change">
-      1 <span id="from-sym">ZAR</span> = <span id="rate-disp">104.969</span> <span id="to-sym">MWK</span>
-    </div>
-    <button class="settings-btn" onclick="openSettings()">Settings</button>
-  </div>
-
-  <div class="add-bar">
-    <input id="inp-name" type="text" placeholder="Product name" style="flex:2;min-width:130px;">
-    <select id="inp-cat" style="flex:1;min-width:120px;">
-      <option value="Electronics">Electronics</option>
-      <option value="Clothing">Clothing</option>
-      <option value="Groceries">Groceries</option>
-      <option value="Home">Home &amp; Kitchen</option>
-      <option value="Other">Other</option>
-    </select>
-    <input id="inp-zar" type="number" step="0.01" placeholder="Price" style="flex:1;min-width:90px;">
-    <button class="btn-primary" onclick="addProduct()">Add</button>
-  </div>
-
-  <div class="filter-bar">
-    <input id="inp-search" type="text" placeholder="Search..." oninput="renderTable()" style="flex:2;min-width:130px;">
-    <select id="inp-cat-filter" onchange="renderTable()" style="flex:1;min-width:120px;">
-      <option value="">All categories</option>
-      <option value="Electronics">Electronics</option>
-      <option value="Clothing">Clothing</option>
-      <option value="Groceries">Groceries</option>
-      <option value="Home">Home &amp; Kitchen</option>
-      <option value="Other">Other</option>
-    </select>
-    <button class="btn-csv" onclick="exportCSV()">Export CSV</button>
-  </div>
-
-  <div class="scroll-area">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:28%">Product</th>
-          <th style="width:16%">Category</th>
-          <th style="width:15%" id="th-from">ZAR</th>
-          <th style="width:20%" id="th-to">MWK</th>
-          <th style="width:21%">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
-
-  <div class="footer-bar">
-    <div class="stat"><div class="stat-label">Items shown</div><div class="stat-value" id="count-disp">0</div></div>
-    <div class="stat"><div class="stat-label" id="lbl-zar-total">Total (ZAR)</div><div class="stat-value" id="total-from">0.00</div></div>
-    <div class="stat"><div class="stat-label" id="lbl-mwk-total">Total (MWK)</div><div class="stat-value green" id="total-to">0.00</div></div>
-  </div>
-
-  <div class="overlay" id="settings-overlay">
-    <div class="modal">
-      <h2>Currency settings</h2>
-      <div class="field">
-        <label>From currency (source)</label>
-        <select id="s-from">
-          <option value="ZAR">ZAR — South African Rand</option>
-          <option value="USD">USD — US Dollar</option>
-          <option value="EUR">EUR — Euro</option>
-          <option value="GBP">GBP — British Pound</option>
-          <option value="KES">KES — Kenyan Shilling</option>
-          <option value="ZMW">ZMW — Zambian Kwacha</option>
-          <option value="BWP">BWP — Botswana Pula</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>To currency (target)</label>
-        <select id="s-to">
-          <option value="MWK">MWK — Malawian Kwacha</option>
-          <option value="USD">USD — US Dollar</option>
-          <option value="EUR">EUR — Euro</option>
-          <option value="GBP">GBP — British Pound</option>
-          <option value="KES">KES — Kenyan Shilling</option>
-          <option value="ZAR">ZAR — South African Rand</option>
-          <option value="ZMW">ZMW — Zambian Kwacha</option>
-        </select>
-      </div>
-      <div class="field">
-        <label id="rate-label">Exchange rate (1 ZAR = ? MWK)</label>
-        <input id="s-rate" type="number" step="0.001" value="104.969">
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
-        <button class="btn-save" onclick="saveSettings()">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-</div>
-
-<script>
-const SUBDOMAIN="qbttvfivxpolezntkjwp",REGION="eu-central-1",ADMIN_SECRET="L,OR:IQL!y^x1rv:Nil4ed&:DmC4Vxqb";
-const GQL=`https://${SUBDOMAIN}.graphql.${REGION}.nhost.run/v1`;
-
-let products=[];
-let editingId=null;
-let cfg={from:'ZAR',to:'MWK',rate:104.969};
-
-function loadCfg(){try{const s=JSON.parse(sessionStorage.getItem('pmcfg'));if(s)cfg=s;}catch(e){}}
-function saveCfg(){try{sessionStorage.setItem('pmcfg',JSON.stringify(cfg));}catch(e){}}
-
-function fmt(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function cap(s){return s.trim().replace(/\b\w/g,c=>c.toUpperCase());}
-
-function toast(msg,err=false){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show'+(err?' err':'');
-  setTimeout(()=>t.className='toast',2400);
-}
-
-function updateRateUI(){
-  document.getElementById('rate-disp').textContent=fmt(cfg.rate);
-  document.getElementById('from-sym').textContent=cfg.from;
-  document.getElementById('to-sym').textContent=cfg.to;
-  document.getElementById('th-from').textContent=cfg.from;
-  document.getElementById('th-to').textContent=cfg.to;
-  document.getElementById('lbl-zar-total').textContent=`Total (${cfg.from})`;
-  document.getElementById('lbl-mwk-total').textContent=`Total (${cfg.to})`;
-  const inp=document.getElementById('inp-zar');
-  inp.placeholder=`Price (${cfg.from})`;
-}
-
-function openSettings(){
-  document.getElementById('s-from').value=cfg.from;
-  document.getElementById('s-to').value=cfg.to;
-  document.getElementById('s-rate').value=cfg.rate;
-  updateRateLabel();
-  document.getElementById('settings-overlay').classList.add('open');
-}
-function closeSettings(){document.getElementById('settings-overlay').classList.remove('open');}
-
-function updateRateLabel(){
-  const f=document.getElementById('s-from').value;
-  const t=document.getElementById('s-to').value;
-  document.getElementById('rate-label').textContent=`Exchange rate (1 ${f} = ? ${t})`;
-}
-document.getElementById('s-from').addEventListener('change',updateRateLabel);
-document.getElementById('s-to').addEventListener('change',updateRateLabel);
-
-function saveSettings(){
-  const f=document.getElementById('s-from').value;
-  const t=document.getElementById('s-to').value;
-  const r=parseFloat(document.getElementById('s-rate').value);
-  if(f===t){toast('From and To currencies must differ',true);return;}
-  if(isNaN(r)||r<=0){toast('Enter a valid rate',true);return;}
-  cfg={from:f,to:t,rate:r};
-  saveCfg();updateRateUI();renderTable();closeSettings();
-  toast('Settings saved');
-}
-
-async function gql(query,variables={}){
-  const res=await fetch(GQL,{method:'POST',headers:{'Content-Type':'application/json','x-hasura-admin-secret':ADMIN_SECRET},body:JSON.stringify({query,variables})});
-  const j=await res.json();
-  if(j.errors)throw new Error(j.errors[0].message);
-  return j.data;
-}
-
-async function loadProducts(){
-  try{
-    const d=await gql(`query{products(order_by:{created_at:desc}){id name category price_zar price_mwk}}`);
-    products=d.products||[];renderTable();
-  }catch(e){toast('Could not load products',true);}
-}
-
-async function addProduct(){
-  let name=document.getElementById('inp-name').value.trim();
-  const cat=document.getElementById('inp-cat').value;
-  const raw=parseFloat(document.getElementById('inp-zar').value);
-  if(!name||isNaN(raw)||raw<=0){toast('Enter a valid name and price',true);return;}
-  name=cap(name);
-  const converted=parseFloat((raw*cfg.rate).toFixed(4));
-  try{
-    await gql(
-      `mutation A($name:String!,$cat:String!,$zar:float8!,$mwk:float8!){insert_products_one(object:{name:$name,category:$cat,price_zar:$zar,price_mwk:$mwk}){id}}`,
-      {name,cat,zar:raw,mwk:converted}
-    );
-    document.getElementById('inp-name').value='';
-    document.getElementById('inp-zar').value='';
-    toast('Product added');loadProducts();
-  }catch(e){toast('Failed to add product',true);}
-}
-
-async function deleteProduct(id){
-  if(!confirm('Delete this product?'))return;
-  try{await gql(`mutation{delete_products_by_pk(id:${id}){id}}`);toast('Deleted');loadProducts();}
-  catch(e){toast('Delete failed',true);}
-}
-
-function startEdit(id){editingId=id;renderTable();}
-function cancelEdit(){editingId=null;renderTable();}
-
-async function saveEdit(id){
-  const name=cap(document.getElementById(`en-${id}`).value.trim());
-  const cat=document.getElementById(`ec-${id}`).value;
-  const zar=parseFloat(document.getElementById(`ez-${id}`).value);
-  if(!name||isNaN(zar)||zar<=0){toast('Invalid values',true);return;}
-  const mwk=parseFloat((zar*cfg.rate).toFixed(4));
-  try{
-    await gql(
-      `mutation U($id:Int!,$name:String!,$cat:String!,$zar:float8!,$mwk:float8!){update_products_by_pk(pk_columns:{id:$id},_set:{name:$name,category:$cat,price_zar:$zar,price_mwk:$mwk}){id}}`,
-      {id,name,cat,zar,mwk}
-    );
-    editingId=null;toast('Saved');loadProducts();
-  }catch(e){toast('Save failed',true);}
-}
-
-function renderTable(){
-  const s=document.getElementById('inp-search').value.toLowerCase();
-  const cf=document.getElementById('inp-cat-filter').value;
-  const filtered=products.filter(p=>
-    (!s||p.name.toLowerCase().includes(s)||p.category.toLowerCase().includes(s))&&
-    (!cf||p.category===cf)
-  );
-  const cats=['Electronics','Clothing','Groceries','Home','Other'];
-  const catOpts=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
-  const tbody=document.getElementById('tbody');
-
-  if(!filtered.length){
-    tbody.innerHTML=`<tr class="empty-row"><td colspan="5">No products found</td></tr>`;
-    document.getElementById('count-disp').textContent='0';
-    document.getElementById('total-from').textContent=`${cfg.from} 0.00`;
-    document.getElementById('total-to').textContent=`${cfg.to} 0.00`;
-    return;
+  :root {
+    --bg:       #0b0f1a;
+    --surface:  #111827;
+    --card:     #161d2e;
+    --border:   #1f2d45;
+    --border2:  #2a3a56;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --subtle:   #94a3b8;
+    --green:    #10d98a;
+    --green-dk: #0a9e64;
+    --cyan:     #22d3ee;
+    --cyan-dk:  #0891b2;
+    --red:      #f87171;
+    --info-bg:  rgba(34,211,238,0.08);
+    --info-bd:  rgba(34,211,238,0.2);
+    --info-tx:  #67e8f9;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
   }
 
-  tbody.innerHTML=filtered.map(p=>{
-    const dispFrom=p.price_zar;
-    const dispTo=(p.price_zar*cfg.rate);
-    if(editingId===p.id){
-      const selOpts=cats.map(c=>`<option value="${c}"${c===p.category?' selected':''}>${c}</option>`).join('');
+  .topbar {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; height: 56px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    gap: 12px;
+  }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-icon {
+    width:32px; height:32px; border-radius:8px;
+    background: linear-gradient(135deg, #10d98a 0%, #22d3ee 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+  }
+  .brand-name { font-size:15px; font-weight:600; letter-spacing:-0.3px; }
+  .brand-sub  { font-size:11px; color:var(--muted); }
+  .rate-pill {
+    display:flex; align-items:center; gap:6px;
+    background: var(--info-bg); border:1px solid var(--info-bd);
+    border-radius:50px; padding:5px 14px;
+    font-size:12px; color:var(--info-tx); cursor:pointer;
+    font-family:'JetBrains Mono',monospace; font-weight:500;
+    transition: background 0.2s;
+  }
+  .rate-pill:hover { background: rgba(34,211,238,0.14); }
+  .rate-pill .dot { width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0; }
+  .settings-btn {
+    padding:7px 14px; border-radius:8px; font-size:13px; font-weight:500;
+    background: var(--card); border:1px solid var(--border2);
+    color: var(--subtle); cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; transition: all 0.2s;
+  }
+  .settings-btn:hover { border-color:var(--cyan-dk); color:var(--cyan); }
+
+  .add-bar {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap:8px; flex-wrap:wrap;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .filter-bar {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap:8px; flex-wrap:wrap;
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  input, select {
+    background: var(--card); border:1px solid var(--border2);
+    color: var(--text); border-radius:8px;
+    padding:8px 12px; font-size:13px; outline:none;
+    font-family:'Space Grotesk',sans-serif; transition: border-color 0.15s;
+  }
+  input::placeholder { color:var(--muted); }
+  input:focus, select:focus { border-color:var(--cyan-dk); }
+  select option { background:var(--card); }
+
+  .btn-add {
+    padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600;
+    background: var(--green); border:none; color:#04342c; cursor:pointer;
+    font-family:'Space Grotesk',sans-serif;
+    transition: background 0.2s, transform 0.1s; white-space:nowrap;
+  }
+  .btn-add:hover  { background:#0fffaa; }
+  .btn-add:active { transform:scale(0.97); }
+  .btn-csv {
+    padding:8px 14px; border-radius:8px; font-size:13px; font-weight:500;
+    background: var(--card); border:1px solid var(--border2);
+    color:var(--subtle); cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; transition:all 0.2s;
+  }
+  .btn-csv:hover { border-color:var(--cyan-dk); color:var(--cyan); }
+
+  /* Only this area scrolls */
+  .scroll-area { flex:1; overflow-y:auto; min-height:0; }
+  .scroll-area::-webkit-scrollbar { width:5px; }
+  .scroll-area::-webkit-scrollbar-track { background:transparent; }
+  .scroll-area::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+
+  table { width:100%; border-collapse:collapse; table-layout:fixed; }
+  thead th {
+    position:sticky; top:0; z-index:2;
+    padding:10px 16px; font-size:11px; font-weight:600; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--muted); text-align:left;
+    border-bottom:1px solid var(--border); background:var(--surface);
+  }
+  td { padding:12px 16px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr { transition:background 0.12s; }
+  tbody tr:hover td { background:rgba(255,255,255,0.025); }
+
+  .name-cell  { font-weight:500; color:#f1f5f9; }
+  .cat-badge  {
+    font-size:11px; font-weight:500; padding:3px 9px; border-radius:50px;
+    background:var(--info-bg); color:var(--info-tx); border:1px solid var(--info-bd);
+  }
+  .from-price { color:var(--subtle); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .to-price   { color:var(--green);  font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:500; }
+  .act-btn {
+    background:none; border:none; cursor:pointer;
+    color:var(--muted); font-size:12px; font-weight:500;
+    padding:4px 9px; border-radius:6px;
+    font-family:'Space Grotesk',sans-serif; transition:all 0.15s;
+  }
+  .act-btn:hover      { background:var(--border); color:var(--text); }
+  .act-btn.del:hover  { background:rgba(248,113,113,0.1); color:var(--red); }
+  .act-btn.save-btn   { color:var(--green); }
+  .act-btn.save-btn:hover { background:rgba(16,217,138,0.1); }
+  .edit-input {
+    width:100%; background:var(--bg); border:1px solid var(--cyan-dk);
+    color:var(--text); border-radius:6px;
+    padding:5px 8px; font-size:12px;
+    font-family:'Space Grotesk',sans-serif; outline:none;
+  }
+  .empty-row td { text-align:center; padding:60px; color:var(--muted); font-size:14px; }
+
+  /* Footer — always visible at bottom */
+  .footer-bar {
+    flex-shrink: 0;
+    display:flex;
+    border-top:1px solid var(--border);
+    background:var(--surface);
+  }
+  .stat { flex:1; padding:10px 20px; border-right:1px solid var(--border); }
+  .stat:last-child { border-right:none; }
+  .stat-label { font-size:10px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:2px; }
+  .stat-value { font-size:15px; font-weight:600; font-family:'JetBrains Mono',monospace; }
+  .stat-value.green { color:var(--green); }
+
+  /* Modal */
+  .overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.6); z-index:50;
+    align-items:center; justify-content:center;
+  }
+  .overlay.open { display:flex; }
+  .modal {
+    background:var(--card); border:1px solid var(--border2);
+    border-radius:14px; padding:24px 28px;
+    min-width:300px; max-width:400px; width:92%;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .modal-title  { font-size:16px; font-weight:600; }
+  .modal-close  { background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:2px 6px; border-radius:4px; }
+  .modal-close:hover { color:var(--text); background:var(--border); }
+  .field { margin-bottom:14px; }
+  .field label { display:block; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .field input, .field select { width:100%; }
+  .modal-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
+  .btn-save {
+    padding:8px 20px; border-radius:8px; font-size:13px; font-weight:600;
+    background:var(--green); border:none; color:#04342c; cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; transition:background 0.2s;
+  }
+  .btn-save:hover { background:#0fffaa; }
+  .btn-cancel {
+    padding:8px 14px; border-radius:8px; font-size:13px; font-weight:500;
+    background:none; border:1px solid var(--border2); color:var(--subtle); cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; transition:all 0.2s;
+  }
+  .btn-cancel:hover { border-color:var(--red); color:var(--red); }
+  #rate-preview { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--cyan); }
+
+  .toast {
+    position:fixed; bottom:70px; left:50%; transform:translateX(-50%);
+    background:var(--green-dk); color:#e1f5ee;
+    padding:9px 20px; border-radius:50px;
+    font-size:13px; font-weight:500;
+    opacity:0; transition:opacity 0.25s;
+    pointer-events:none; white-space:nowrap; z-index:100;
+    border:1px solid rgba(16,217,138,0.3);
+  }
+  .toast.show { opacity:1; }
+  .toast.err  { background:#7f1d1d; color:#fca5a5; border-color:rgba(248,113,113,0.3); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🛒</div>
+    <div>
+      <div class="brand-name">SA-Order</div>
+      <div class="brand-sub">Price Manager</div>
+    </div>
+  </div>
+  <div class="rate-pill" onclick="openSettings()" title="Click to edit">
+    <div class="dot"></div>
+    1 <span id="from-sym">ZAR</span> = <span id="rate-disp">104.969</span> <span id="to-sym">MWK</span>
+  </div>
+  <button class="settings-btn" onclick="openSettings()">⚙ Settings</button>
+</div>
+
+<div class="add-bar">
+  <input id="inp-name" type="text" placeholder="Product name" style="flex:2;min-width:130px;"
+         oninput="this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase())">
+  <select id="inp-cat" style="flex:1;min-width:130px;">
+    <option value="Electronics">Electronics</option>
+    <option value="Clothing">Clothing</option>
+    <option value="Groceries">Groceries</option>
+    <option value="Home">Home &amp; Kitchen</option>
+    <option value="Other">Other</option>
+  </select>
+  <input id="inp-price" type="number" step="0.01" placeholder="Price (ZAR)" style="flex:1;min-width:110px;">
+  <button class="btn-add" onclick="addProduct()">+ Add product</button>
+</div>
+
+<div class="filter-bar">
+  <input id="inp-search" type="text" placeholder="🔍  Search products..." oninput="renderTable()" style="flex:2;min-width:140px;">
+  <select id="inp-cat-filter" onchange="renderTable()" style="flex:1;min-width:140px;">
+    <option value="">All categories</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Clothing">Clothing</option>
+    <option value="Groceries">Groceries</option>
+    <option value="Home">Home &amp; Kitchen</option>
+    <option value="Other">Other</option>
+  </select>
+  <button class="btn-csv" onclick="exportCSV()">↓ Export CSV</button>
+</div>
+
+<div class="scroll-area">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:28%">Product</th>
+        <th style="width:16%">Category</th>
+        <th style="width:16%" id="th-from">ZAR</th>
+        <th style="width:20%" id="th-to">MWK</th>
+        <th style="width:20%">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="footer-bar">
+  <div class="stat">
+    <div class="stat-label">Items</div>
+    <div class="stat-value" id="count-disp">0</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label" id="lbl-from-total">Total ZAR</div>
+    <div class="stat-value" id="total-from">0.00</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label" id="lbl-to-total">Total MWK</div>
+    <div class="stat-value green" id="total-to">0.00</div>
+  </div>
+</div>
+
+<div class="overlay" id="settings-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Currency settings</span>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="field">
+      <label>From currency</label>
+      <select id="s-from" onchange="updateRateLabel()">
+        <option value="ZAR">ZAR — South African Rand</option>
+        <option value="USD">USD — US Dollar</option>
+        <option value="EUR">EUR — Euro</option>
+        <option value="GBP">GBP — British Pound</option>
+        <option value="KES">KES — Kenyan Shilling</option>
+        <option value="ZMW">ZMW — Zambian Kwacha</option>
+        <option value="BWP">BWP — Botswana Pula</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>To currency</label>
+      <select id="s-to" onchange="updateRateLabel()">
+        <option value="MWK">MWK — Malawian Kwacha</option>
+        <option value="USD">USD — US Dollar</option>
+        <option value="EUR">EUR — Euro</option>
+        <option value="GBP">GBP — British Pound</option>
+        <option value="KES">KES — Kenyan Shilling</option>
+        <option value="ZAR">ZAR — South African Rand</option>
+        <option value="ZMW">ZMW — Zambian Kwacha</option>
+      </select>
+    </div>
+    <div class="field">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <label style="margin-bottom:0;text-transform:uppercase;letter-spacing:0.06em;font-size:11px;font-weight:600;color:var(--muted);">Exchange rate</label>
+        <span id="rate-preview">1 ZAR = ? MWK</span>
+      </div>
+      <input id="s-rate" type="number" step="0.001" value="104.969" placeholder="e.g. 104.969" oninput="updateRateLabel()">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="btn-save" onclick="saveSettings()">Save settings</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUBDOMAIN    = "qbttvfivxpolezntkjwp";
+  const REGION       = "eu-central-1";
+  const ADMIN_SECRET = "L,OR:IQL!y^x1rv:Nil4ed&:DmC4Vxqb";
+  const GQL          = `https://${SUBDOMAIN}.graphql.${REGION}.nhost.run/v1`;
+
+  let products  = [];
+  let editingId = null;
+  let cfg       = { from:'ZAR', to:'MWK', rate:104.969 };
+
+  function loadCfg(){ try{ const s=JSON.parse(localStorage.getItem('saorder_cfg')); if(s) cfg=s; } catch(e){} }
+  function saveCfg(){ try{ localStorage.setItem('saorder_cfg', JSON.stringify(cfg)); } catch(e){} }
+  function fmt(n){ return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function cap(s){ return s.trim().replace(/\b\w/g,c=>c.toUpperCase()); }
+
+  function toast(msg, err=false){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.className='toast show'+(err?' err':'');
+    setTimeout(()=>t.className='toast', 2500);
+  }
+
+  function updateUI(){
+    document.getElementById('rate-disp').textContent      = fmt(cfg.rate);
+    document.getElementById('from-sym').textContent       = cfg.from;
+    document.getElementById('to-sym').textContent         = cfg.to;
+    document.getElementById('th-from').textContent        = cfg.from;
+    document.getElementById('th-to').textContent          = cfg.to;
+    document.getElementById('lbl-from-total').textContent = `Total ${cfg.from}`;
+    document.getElementById('lbl-to-total').textContent   = `Total ${cfg.to}`;
+    document.getElementById('inp-price').placeholder      = `Price (${cfg.from})`;
+  }
+
+  function openSettings(){
+    document.getElementById('s-from').value = cfg.from;
+    document.getElementById('s-to').value   = cfg.to;
+    document.getElementById('s-rate').value = cfg.rate;
+    updateRateLabel();
+    document.getElementById('settings-overlay').classList.add('open');
+  }
+  function closeSettings(){ document.getElementById('settings-overlay').classList.remove('open'); }
+
+  function updateRateLabel(){
+    const f=document.getElementById('s-from').value;
+    const t=document.getElementById('s-to').value;
+    const r=document.getElementById('s-rate').value;
+    document.getElementById('rate-preview').textContent=`1 ${f} = ${r||'?'} ${t}`;
+  }
+
+  function saveSettings(){
+    const f=document.getElementById('s-from').value;
+    const t=document.getElementById('s-to').value;
+    const r=parseFloat(document.getElementById('s-rate').value);
+    if(f===t){ toast('From and To must differ',true); return; }
+    if(isNaN(r)||r<=0){ toast('Enter a valid rate',true); return; }
+    cfg={from:f,to:t,rate:r};
+    saveCfg(); updateUI(); renderTable(); closeSettings();
+    toast('Settings saved');
+  }
+
+  async function gql(query, variables={}){
+    const res = await fetch(GQL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-hasura-admin-secret':ADMIN_SECRET},
+      body: JSON.stringify({query,variables})
+    });
+    const j = await res.json();
+    if(j.errors) throw new Error(j.errors[0].message);
+    return j.data;
+  }
+
+  async function loadProducts(){
+    try{
+      const d = await gql(`query{products(order_by:{created_at:desc}){id name category price_zar price_mwk}}`);
+      products = d.products||[]; renderTable();
+    }catch(e){ toast('Could not connect to database',true); }
+  }
+
+  async function addProduct(){
+    let name = document.getElementById('inp-name').value.trim();
+    const cat = document.getElementById('inp-cat').value;
+    const raw = parseFloat(document.getElementById('inp-price').value);
+    if(!name||isNaN(raw)||raw<=0){ toast('Enter a valid name and price',true); return; }
+    name = cap(name);
+    const converted = parseFloat((raw*cfg.rate).toFixed(4));
+    try{
+      await gql(
+        `mutation A($name:String!,$cat:String!,$zar:float8!,$mwk:float8!){insert_products_one(object:{name:$name,category:$cat,price_zar:$zar,price_mwk:$mwk}){id}}`,
+        {name,cat,zar:raw,mwk:converted}
+      );
+      document.getElementById('inp-name').value='';
+      document.getElementById('inp-price').value='';
+      toast('Product added'); loadProducts();
+    }catch(e){ toast('Failed to add product',true); }
+  }
+
+  async function deleteProduct(id){
+    if(!confirm('Delete this product?')) return;
+    try{
+      await gql(`mutation{delete_products_by_pk(id:${id}){id}}`);
+      toast('Deleted'); loadProducts();
+    }catch(e){ toast('Delete failed',true); }
+  }
+
+  function startEdit(id){ editingId=id; renderTable(); }
+  function cancelEdit(){ editingId=null; renderTable(); }
+
+  async function saveEdit(id){
+    const name = cap(document.getElementById(`en-${id}`).value.trim());
+    const cat  = document.getElementById(`ec-${id}`).value;
+    const zar  = parseFloat(document.getElementById(`ez-${id}`).value);
+    if(!name||isNaN(zar)||zar<=0){ toast('Invalid values',true); return; }
+    const mwk = parseFloat((zar*cfg.rate).toFixed(4));
+    try{
+      await gql(
+        `mutation U($id:Int!,$name:String!,$cat:String!,$zar:float8!,$mwk:float8!){update_products_by_pk(pk_columns:{id:$id},_set:{name:$name,category:$cat,price_zar:$zar,price_mwk:$mwk}){id}}`,
+        {id,name,cat,zar,mwk}
+      );
+      editingId=null; toast('Saved'); loadProducts();
+    }catch(e){ toast('Save failed',true); }
+  }
+
+  function renderTable(){
+    const s  = document.getElementById('inp-search').value.toLowerCase();
+    const cf = document.getElementById('inp-cat-filter').value;
+    const filtered = products.filter(p=>
+      (!s||p.name.toLowerCase().includes(s)||p.category.toLowerCase().includes(s))&&
+      (!cf||p.category===cf)
+    );
+    const cats=['Electronics','Clothing','Groceries','Home','Other'];
+    const tbody = document.getElementById('tbody');
+
+    if(!filtered.length){
+      tbody.innerHTML=`<tr class="empty-row"><td colspan="5">No products found. Add some above ✦</td></tr>`;
+      document.getElementById('count-disp').textContent='0';
+      document.getElementById('total-from').textContent='0.00';
+      document.getElementById('total-to').textContent='0.00';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(p=>{
+      const dispTo = Number(p.price_zar)*cfg.rate;
+      if(editingId===p.id){
+        const selOpts=cats.map(c=>`<option value="${c}"${c===p.category?' selected':''}>${c}</option>`).join('');
+        return `<tr>
+          <td><input class="edit-input" id="en-${p.id}" value="${p.name}"></td>
+          <td><select class="edit-input" id="ec-${p.id}">${selOpts}</select></td>
+          <td><input class="edit-input" id="ez-${p.id}" type="number" step="0.01" value="${p.price_zar}"></td>
+          <td class="to-price">${cfg.to} ${fmt(dispTo)}</td>
+          <td>
+            <button class="act-btn save-btn" onclick="saveEdit(${p.id})">Save</button>
+            <button class="act-btn" onclick="cancelEdit()">Cancel</button>
+          </td>
+        </tr>`;
+      }
       return `<tr>
-        <td><input class="edit-input" id="en-${p.id}" value="${p.name}"></td>
-        <td><select class="edit-input" id="ec-${p.id}">${selOpts}</select></td>
-        <td><input class="edit-input" id="ez-${p.id}" type="number" step="0.01" value="${p.price_zar}" style="width:80px;"></td>
-        <td class="mwk">${cfg.to} ${fmt(dispTo)}</td>
+        <td class="name-cell">${p.name}</td>
+        <td><span class="cat-badge">${p.category}</span></td>
+        <td class="from-price">${cfg.from} ${fmt(p.price_zar)}</td>
+        <td class="to-price">${cfg.to} ${fmt(dispTo)}</td>
         <td>
-          <button class="act-btn" onclick="saveEdit(${p.id})">Save</button>
-          <button class="act-btn" onclick="cancelEdit()">Cancel</button>
+          <button class="act-btn" onclick="startEdit(${p.id})">Edit</button>
+          <button class="act-btn del" onclick="deleteProduct(${p.id})">Delete</button>
         </td>
       </tr>`;
-    }
-    return `<tr>
-      <td class="name-cell">${p.name}</td>
-      <td><span class="cat-badge">${p.category}</span></td>
-      <td class="zar">${cfg.from} ${fmt(dispFrom)}</td>
-      <td class="mwk">${cfg.to} ${fmt(dispTo)}</td>
-      <td>
-        <button class="act-btn" onclick="startEdit(${p.id})">Edit</button>
-        <button class="act-btn del" onclick="deleteProduct(${p.id})">Delete</button>
-      </td>
-    </tr>`;
-  }).join('');
+    }).join('');
 
-  const tFrom=filtered.reduce((s,p)=>s+Number(p.price_zar),0);
-  const tTo=filtered.reduce((s,p)=>s+(Number(p.price_zar)*cfg.rate),0);
-  document.getElementById('count-disp').textContent=filtered.length;
-  document.getElementById('total-from').textContent=`${cfg.from} ${fmt(tFrom)}`;
-  document.getElementById('total-to').textContent=`${cfg.to} ${fmt(tTo)}`;
-}
+    const tFrom = filtered.reduce((s,p)=>s+Number(p.price_zar),0);
+    const tTo   = filtered.reduce((s,p)=>s+(Number(p.price_zar)*cfg.rate),0);
+    document.getElementById('count-disp').textContent = filtered.length;
+    document.getElementById('total-from').textContent = `${cfg.from} ${fmt(tFrom)}`;
+    document.getElementById('total-to').textContent   = `${cfg.to} ${fmt(tTo)}`;
+  }
 
-function exportCSV(){
-  const s=document.getElementById('inp-search').value.toLowerCase();
-  const cf=document.getElementById('inp-cat-filter').value;
-  const filtered=products.filter(p=>(!s||p.name.toLowerCase().includes(s)||p.category.toLowerCase().includes(s))&&(!cf||p.category===cf));
-  if(!filtered.length){toast('Nothing to export',true);return;}
-  const rows=[['Name','Category',`Price (${cfg.from})`,`Price (${cfg.to})`],
-    ...filtered.map(p=>[p.name,p.category,p.price_zar,(p.price_zar*cfg.rate).toFixed(2)])];
-  const csv=rows.map(r=>r.join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download='products.csv';a.click();
-  toast('CSV exported');
-}
+  function exportCSV(){
+    const s  = document.getElementById('inp-search').value.toLowerCase();
+    const cf = document.getElementById('inp-cat-filter').value;
+    const filtered = products.filter(p=>
+      (!s||p.name.toLowerCase().includes(s)||p.category.toLowerCase().includes(s))&&
+      (!cf||p.category===cf)
+    );
+    if(!filtered.length){ toast('Nothing to export',true); return; }
+    const rows=[['Name','Category',`Price (${cfg.from})`,`Price (${cfg.to})`],
+      ...filtered.map(p=>[`"${p.name}"`,p.category,p.price_zar,(Number(p.price_zar)*cfg.rate).toFixed(2)])];
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));
+    a.download='saorder_export.csv'; a.click();
+    toast('CSV exported');
+  }
 
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement.id!=='s-rate')addProduct();});
-document.getElementById('settings-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
+  document.getElementById('settings-overlay').addEventListener('click',e=>{
+    if(e.target===e.currentTarget) closeSettings();
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!document.getElementById('settings-overlay').classList.contains('open')) addProduct();
+    if(e.key==='Escape') closeSettings();
+  });
 
-loadCfg();updateRateUI();loadProducts();
+  loadCfg(); updateUI(); loadProducts();
 </script>
+</body>
+</html>
