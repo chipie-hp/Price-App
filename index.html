@@ -1,337 +1,397 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Price Manager - Nhost</title>
-  <style>
-    :root {
-      --bg: #0f172a; --card: #1e2937; --text: #e2e8f0; --accent: #22d3ee;
-      --green: #34d399; --orange: #fb923c; --red: #f87171; --border: #334155;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family:'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px;
-      font-size: 14px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 8px;
-      background: linear-gradient(90deg, #22d3ee, #67e8f9);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 700;
-    }
-    .subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 12px; }
-    .rate {
-      text-align: center; background: rgba(34,211,238,0.12); color: var(--accent);
-      padding: 10px 24px; border-radius: 50px; display: inline-block;
-      font-weight: 600; font-size: 14px; margin-bottom: 30px;
-      border: 1px solid rgba(34,211,238,0.3);
-    }
-    .controls {
-      max-width: 1100px; margin: 0 auto 25px;
-      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-    }
-    input, select, button {
-      padding: 12px 14px; border: none; border-radius: 10px; font-size: 14px;
-    }
-    input, select { background: #334155; color: white; }
-    #product { width: 290px; }
-    #search { width: 270px; }
-    #categoryFilter { min-width: 170px; }
-    button {
-      background: var(--green); color: white; font-weight: 600; cursor: pointer;
-      transition: all 0.3s;
-    }
-    button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(52,211,153,0.4); }
-    .export-btn { background: #6366f1; }
-    .export-btn:hover { box-shadow: 0 8px 25px rgba(99,102,241,0.4); }
 
-    .table-container {
-      max-width: 1100px; margin: 0 auto; background: var(--card);
-      border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.35);
-      border: 1px solid rgba(148,163,184,0.1);
-    }
-    table { width: 100%; border-collapse: collapse; }
-    th {
-      background: #1e2937; color: var(--accent); padding: 16px 12px;
-      text-align: left; font-weight: 600; font-size: 12px;
-      border-bottom: 2px solid #334155;
-    }
-    td {
-      padding: 16px 12px; border-bottom: 1px solid var(--border);
-      font-size: 14px; vertical-align: middle;
-    }
-    tr:hover { background: rgba(34,211,238,0.08); }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+#app{font-family:var(--font-sans);color:var(--color-text-primary);display:flex;flex-direction:column;height:600px;}
 
-    .product-name { font-size: 14px; font-weight: 600; color: white; }
-    .category { font-size: 12px; color: #94a3b8; }
-    .price-zar { font-size: 12px; color: #cbd5e1; }
-    .price-mwk { font-size: 14px; font-weight: 700; color: var(--green); }
+.topbar{
+  flex-shrink:0;
+  border-bottom:0.5px solid var(--color-border-secondary);
+  background:var(--color-background-primary);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+}
+.brand{display:flex;flex-direction:column;}
+.brand-title{font-size:16px;font-weight:500;}
+.brand-sub{font-size:12px;color:var(--color-text-secondary);}
+.rate-pill{
+  font-size:12px;padding:4px 12px;border-radius:50px;
+  background:var(--color-background-secondary);
+  border:0.5px solid var(--color-border-secondary);
+  color:var(--color-text-secondary);
+  cursor:pointer;
+}
+.rate-pill span{color:var(--color-text-primary);font-weight:500;}
+.settings-btn{
+  font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);
+  background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);
+  color:var(--color-text-primary);cursor:pointer;
+}
+.settings-btn:hover{background:var(--color-background-tertiary);}
 
-    .menu-container { position: relative; display: inline-block; }
-    .dots-btn {
-      background: none; border: none; font-size: 20px; color: #94a3b8;
-      cursor: pointer; padding: 6px 10px; border-radius: 6px;
-    }
-    .dots-btn:hover { background: rgba(148,163,184,0.15); color: white; }
-    .menu {
-      display: none; position: absolute; right: 0; top: 35px;
-      background: #1e2937; border: 1px solid #475569; border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 100; min-width: 130px;
-    }
-    .menu.show { display: block; }
-    .menu button {
-      display: block; width: 100%; padding: 12px 16px; text-align: left;
-      background: none; border: none; font-size: 14px; color: var(--text); cursor: pointer;
-    }
-    .menu button:hover { background: #334155; }
+.add-bar{
+  flex-shrink:0;
+  padding:10px 16px;
+  border-bottom:0.5px solid var(--color-border-secondary);
+  background:var(--color-background-secondary);
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
+.filter-bar{
+  flex-shrink:0;
+  padding:8px 16px;
+  border-bottom:0.5px solid var(--color-border-secondary);
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
 
-    .total {
-      text-align: center; font-size: 18px; font-weight: 700; margin: 40px auto;
-      padding: 20px 40px; background: var(--card); border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 460px; color: var(--green);
-    }
-    .empty { text-align: center; color: #64748b; font-size: 14px; padding: 80px 20px; }
-  </style>
-</head>
-<body>
-  <h1>🛒 SA to Malawi</h1>
-  <p class="subtitle">Product Price Manager (Nhost)</p>
-  
-  <div class="rate">1 ZAR = <span id="rate">104.969</span> MWK</div>
+input,select{
+  background:var(--color-background-primary);
+  border:0.5px solid var(--color-border-secondary);
+  color:var(--color-text-primary);
+  border-radius:var(--border-radius-md);
+  padding:7px 10px;font-size:13px;outline:none;
+  font-family:var(--font-sans);
+}
+input:focus,select:focus{border-color:var(--color-border-primary);}
+select option{background:var(--color-background-primary);}
 
-  <div class="controls">
-    <input type="text" id="product" placeholder="Product Name" 
-           oninput="this.value = this.value.replace(/\b\w/g, l => l.toUpperCase())">
-    <select id="category">
+.btn-primary{padding:7px 16px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:none;background:#1d9e75;color:#fff;}
+.btn-primary:hover{background:#0f6e56;}
+.btn-csv{padding:7px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);}
+.btn-csv:hover{background:var(--color-background-secondary);}
+
+.scroll-area{flex:1;overflow-y:auto;min-height:0;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+th{position:sticky;top:0;z-index:2;padding:10px 14px;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;border-bottom:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);}
+td{padding:11px 14px;font-size:13px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--color-background-secondary);}
+.name-cell{font-weight:500;}
+.cat-badge{font-size:11px;padding:3px 9px;border-radius:50px;background:var(--color-background-info);color:var(--color-text-info);border:0.5px solid var(--color-border-info);}
+.zar{color:var(--color-text-secondary);font-size:12px;}
+.mwk{font-weight:500;color:#1d9e75;}
+.act-btn{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:12px;padding:4px 8px;border-radius:var(--border-radius-md);}
+.act-btn:hover{background:var(--color-background-secondary);color:var(--color-text-primary);}
+.act-btn.del:hover{color:#e24b4a;}
+.empty-row td{text-align:center;padding:50px;color:var(--color-text-secondary);font-size:14px;}
+.edit-input{width:100%;background:var(--color-background-primary);border:0.5px solid var(--color-border-primary);color:var(--color-text-primary);border-radius:var(--border-radius-md);padding:5px 7px;font-size:12px;font-family:var(--font-sans);}
+
+.footer-bar{
+  flex-shrink:0;
+  padding:10px 16px;
+  border-top:0.5px solid var(--color-border-secondary);
+  background:var(--color-background-secondary);
+  display:flex;gap:12px;flex-wrap:wrap;
+}
+.stat{flex:1;min-width:110px;}
+.stat-label{font-size:11px;color:var(--color-text-secondary);}
+.stat-value{font-size:15px;font-weight:500;}
+.stat-value.green{color:#1d9e75;}
+
+.overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.35);z-index:10;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:20px 24px;min-width:280px;max-width:380px;width:90%;}
+.modal h2{font-size:16px;font-weight:500;margin-bottom:16px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;}
+.field input,.field select{width:100%;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.btn-save{padding:7px 18px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:none;background:#1d9e75;color:#fff;}
+.btn-cancel{padding:7px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:none;color:var(--color-text-secondary);}
+
+.toast{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#1d9e75;color:#fff;padding:8px 18px;border-radius:50px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;z-index:20;}
+.toast.show{opacity:1;}
+.toast.err{background:#e24b4a;}
+
+.curr-flag{font-size:14px;margin-right:4px;}
+</style>
+
+<div id="app" style="position:relative;">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-title">SA to Malawi</span>
+      <span class="brand-sub">Price manager</span>
+    </div>
+    <div class="rate-pill" onclick="openSettings()" title="Click to change">
+      1 <span id="from-sym">ZAR</span> = <span id="rate-disp">104.969</span> <span id="to-sym">MWK</span>
+    </div>
+    <button class="settings-btn" onclick="openSettings()">Settings</button>
+  </div>
+
+  <div class="add-bar">
+    <input id="inp-name" type="text" placeholder="Product name" style="flex:2;min-width:130px;">
+    <select id="inp-cat" style="flex:1;min-width:120px;">
       <option value="Electronics">Electronics</option>
       <option value="Clothing">Clothing</option>
       <option value="Groceries">Groceries</option>
-      <option value="Home">Home & Kitchen</option>
+      <option value="Home">Home &amp; Kitchen</option>
       <option value="Other">Other</option>
     </select>
-    <input type="number" id="priceZAR" step="0.01" placeholder="Price in ZAR">
-    <button onclick="addProduct()">Add Product</button>
+    <input id="inp-zar" type="number" step="0.01" placeholder="Price" style="flex:1;min-width:90px;">
+    <button class="btn-primary" onclick="addProduct()">Add</button>
   </div>
 
-  <div class="controls">
-    <input type="text" id="search" placeholder="🔍 Search products..." onkeyup="filterProducts()">
-    <select id="categoryFilter" onchange="filterProducts()">
-      <option value="">All Categories</option>
+  <div class="filter-bar">
+    <input id="inp-search" type="text" placeholder="Search..." oninput="renderTable()" style="flex:2;min-width:130px;">
+    <select id="inp-cat-filter" onchange="renderTable()" style="flex:1;min-width:120px;">
+      <option value="">All categories</option>
       <option value="Electronics">Electronics</option>
       <option value="Clothing">Clothing</option>
       <option value="Groceries">Groceries</option>
-      <option value="Home">Home & Kitchen</option>
+      <option value="Home">Home &amp; Kitchen</option>
       <option value="Other">Other</option>
     </select>
-    <button class="export-btn" onclick="exportToCSV()">Export to CSV</button>
+    <button class="btn-csv" onclick="exportCSV()">Export CSV</button>
   </div>
 
-  <div class="table-container">
+  <div class="scroll-area">
     <table>
       <thead>
         <tr>
-          <th style="width:40%;">Product Name</th>
-          <th style="width:18%;">Category</th>
-          <th style="width:15%;">Price (ZAR)</th>
-          <th style="width:18%;">Price (MWK)</th>
-          <th style="width:9%;">Actions</th>
+          <th style="width:28%">Product</th>
+          <th style="width:16%">Category</th>
+          <th style="width:15%" id="th-from">ZAR</th>
+          <th style="width:20%" id="th-to">MWK</th>
+          <th style="width:21%">Actions</th>
         </tr>
       </thead>
-      <tbody id="productBody"></tbody>
+      <tbody id="tbody"></tbody>
     </table>
   </div>
 
-  <div class="total">
-    Total in MWK: <span id="totalMWK">0.00</span>
+  <div class="footer-bar">
+    <div class="stat"><div class="stat-label">Items shown</div><div class="stat-value" id="count-disp">0</div></div>
+    <div class="stat"><div class="stat-label" id="lbl-zar-total">Total (ZAR)</div><div class="stat-value" id="total-from">0.00</div></div>
+    <div class="stat"><div class="stat-label" id="lbl-mwk-total">Total (MWK)</div><div class="stat-value green" id="total-to">0.00</div></div>
   </div>
 
-  <script>
-    // ================== NHOST CONFIG ==================
-    const SUBDOMAIN = "qbttvfivxpolezntkjwp";
-    const REGION    = "eu-central-1";
-    
-    // ←←← REPLACE WITH YOUR REAL ADMIN SECRET
-    const ADMIN_SECRET = "L,OR:IQL!y^x1rv:Nil4ed&:DmC4Vxqb";   
+  <div class="overlay" id="settings-overlay">
+    <div class="modal">
+      <h2>Currency settings</h2>
+      <div class="field">
+        <label>From currency (source)</label>
+        <select id="s-from">
+          <option value="ZAR">ZAR — South African Rand</option>
+          <option value="USD">USD — US Dollar</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GBP">GBP — British Pound</option>
+          <option value="KES">KES — Kenyan Shilling</option>
+          <option value="ZMW">ZMW — Zambian Kwacha</option>
+          <option value="BWP">BWP — Botswana Pula</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>To currency (target)</label>
+        <select id="s-to">
+          <option value="MWK">MWK — Malawian Kwacha</option>
+          <option value="USD">USD — US Dollar</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GBP">GBP — British Pound</option>
+          <option value="KES">KES — Kenyan Shilling</option>
+          <option value="ZAR">ZAR — South African Rand</option>
+          <option value="ZMW">ZMW — Zambian Kwacha</option>
+        </select>
+      </div>
+      <div class="field">
+        <label id="rate-label">Exchange rate (1 ZAR = ? MWK)</label>
+        <input id="s-rate" type="number" step="0.001" value="104.969">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+        <button class="btn-save" onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+  </div>
 
-    const GRAPHQL_URL = `https://${SUBDOMAIN}.graphql.${REGION}.nhost.run/v1`;
+  <div class="toast" id="toast"></div>
+</div>
 
-    const exchangeRate = 104.969;
+<script>
+const SUBDOMAIN="qbttvfivxpolezntkjwp",REGION="eu-central-1",ADMIN_SECRET="L,OR:IQL!y^x1rv:Nil4ed&:DmC4Vxqb";
+const GQL=`https://${SUBDOMAIN}.graphql.${REGION}.nhost.run/v1`;
 
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': ADMIN_SECRET
-    };
+let products=[];
+let editingId=null;
+let cfg={from:'ZAR',to:'MWK',rate:104.969};
 
-    function formatNumber(num) {
-      return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+function loadCfg(){try{const s=JSON.parse(sessionStorage.getItem('pmcfg'));if(s)cfg=s;}catch(e){}}
+function saveCfg(){try{sessionStorage.setItem('pmcfg',JSON.stringify(cfg));}catch(e){}}
 
-    function capitalizeWords(str) {
-      return str.trim().replace(/\b\w/g, char => char.toUpperCase());
-    }
+function fmt(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function cap(s){return s.trim().replace(/\b\w/g,c=>c.toUpperCase());}
 
-    async function graphqlRequest(query, variables = {}) {
-      try {
-        const res = await fetch(GRAPHQL_URL, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({ query, variables })
-        });
+function toast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show'+(err?' err':'');
+  setTimeout(()=>t.className='toast',2400);
+}
 
-        const json = await res.json();
+function updateRateUI(){
+  document.getElementById('rate-disp').textContent=fmt(cfg.rate);
+  document.getElementById('from-sym').textContent=cfg.from;
+  document.getElementById('to-sym').textContent=cfg.to;
+  document.getElementById('th-from').textContent=cfg.from;
+  document.getElementById('th-to').textContent=cfg.to;
+  document.getElementById('lbl-zar-total').textContent=`Total (${cfg.from})`;
+  document.getElementById('lbl-mwk-total').textContent=`Total (${cfg.to})`;
+  const inp=document.getElementById('inp-zar');
+  inp.placeholder=`Price (${cfg.from})`;
+}
 
-        if (json.errors && json.errors.length > 0) {
-          const error = json.errors[0];
-          console.error("Full GraphQL Error:", error);
-          alert("GraphQL Error:\n" + (error.message || JSON.stringify(error)));
-          throw new Error(error.message || "Unknown GraphQL error");
-        }
-        return json.data;
-      } catch (err) {
-        console.error("Request failed:", err);
-        alert("Failed to connect to Nhost.\n\nCheck F12 Console for details.");
-        throw err;
-      }
-    }
+function openSettings(){
+  document.getElementById('s-from').value=cfg.from;
+  document.getElementById('s-to').value=cfg.to;
+  document.getElementById('s-rate').value=cfg.rate;
+  updateRateLabel();
+  document.getElementById('settings-overlay').classList.add('open');
+}
+function closeSettings(){document.getElementById('settings-overlay').classList.remove('open');}
 
-    // Add Product
-    async function addProduct() {
-      const nameInput = document.getElementById('product');
-      let name = nameInput.value.trim();
-      const category = document.getElementById('category').value;
-      const priceZAR = parseFloat(document.getElementById('priceZAR').value);
+function updateRateLabel(){
+  const f=document.getElementById('s-from').value;
+  const t=document.getElementById('s-to').value;
+  document.getElementById('rate-label').textContent=`Exchange rate (1 ${f} = ? ${t})`;
+}
+document.getElementById('s-from').addEventListener('change',updateRateLabel);
+document.getElementById('s-to').addEventListener('change',updateRateLabel);
 
-      if (!name || isNaN(priceZAR) || priceZAR <= 0) {
-        alert("Please enter a valid product name and price in ZAR.");
-        return;
-      }
+function saveSettings(){
+  const f=document.getElementById('s-from').value;
+  const t=document.getElementById('s-to').value;
+  const r=parseFloat(document.getElementById('s-rate').value);
+  if(f===t){toast('From and To currencies must differ',true);return;}
+  if(isNaN(r)||r<=0){toast('Enter a valid rate',true);return;}
+  cfg={from:f,to:t,rate:r};
+  saveCfg();updateRateUI();renderTable();closeSettings();
+  toast('Settings saved');
+}
 
-      name = capitalizeWords(name);
-      const priceMWK = priceZAR * exchangeRate;
+async function gql(query,variables={}){
+  const res=await fetch(GQL,{method:'POST',headers:{'Content-Type':'application/json','x-hasura-admin-secret':ADMIN_SECRET},body:JSON.stringify({query,variables})});
+  const j=await res.json();
+  if(j.errors)throw new Error(j.errors[0].message);
+  return j.data;
+}
 
-  const mutation = `
-  mutation AddProduct($name: String!, $category: String!, $zar: float8!, $mwk: float8!) {
-    insert_products_one(object: {
-      name: $name,
-      category: $category,
-      price_zar: $zar,
-      price_mwk: $mwk
-    }) {
-      id
-    }
+async function loadProducts(){
+  try{
+    const d=await gql(`query{products(order_by:{created_at:desc}){id name category price_zar price_mwk}}`);
+    products=d.products||[];renderTable();
+  }catch(e){toast('Could not load products',true);}
+}
+
+async function addProduct(){
+  let name=document.getElementById('inp-name').value.trim();
+  const cat=document.getElementById('inp-cat').value;
+  const raw=parseFloat(document.getElementById('inp-zar').value);
+  if(!name||isNaN(raw)||raw<=0){toast('Enter a valid name and price',true);return;}
+  name=cap(name);
+  const converted=parseFloat((raw*cfg.rate).toFixed(4));
+  try{
+    await gql(
+      `mutation A($name:String!,$cat:String!,$zar:float8!,$mwk:float8!){insert_products_one(object:{name:$name,category:$cat,price_zar:$zar,price_mwk:$mwk}){id}}`,
+      {name,cat,zar:raw,mwk:converted}
+    );
+    document.getElementById('inp-name').value='';
+    document.getElementById('inp-zar').value='';
+    toast('Product added');loadProducts();
+  }catch(e){toast('Failed to add product',true);}
+}
+
+async function deleteProduct(id){
+  if(!confirm('Delete this product?'))return;
+  try{await gql(`mutation{delete_products_by_pk(id:${id}){id}}`);toast('Deleted');loadProducts();}
+  catch(e){toast('Delete failed',true);}
+}
+
+function startEdit(id){editingId=id;renderTable();}
+function cancelEdit(){editingId=null;renderTable();}
+
+async function saveEdit(id){
+  const name=cap(document.getElementById(`en-${id}`).value.trim());
+  const cat=document.getElementById(`ec-${id}`).value;
+  const zar=parseFloat(document.getElementById(`ez-${id}`).value);
+  if(!name||isNaN(zar)||zar<=0){toast('Invalid values',true);return;}
+  const mwk=parseFloat((zar*cfg.rate).toFixed(4));
+  try{
+    await gql(
+      `mutation U($id:Int!,$name:String!,$cat:String!,$zar:float8!,$mwk:float8!){update_products_by_pk(pk_columns:{id:$id},_set:{name:$name,category:$cat,price_zar:$zar,price_mwk:$mwk}){id}}`,
+      {id,name,cat,zar,mwk}
+    );
+    editingId=null;toast('Saved');loadProducts();
+  }catch(e){toast('Save failed',true);}
+}
+
+function renderTable(){
+  const s=document.getElementById('inp-search').value.toLowerCase();
+  const cf=document.getElementById('inp-cat-filter').value;
+  const filtered=products.filter(p=>
+    (!s||p.name.toLowerCase().includes(s)||p.category.toLowerCase().includes(s))&&
+    (!cf||p.category===cf)
+  );
+  const cats=['Electronics','Clothing','Groceries','Home','Other'];
+  const catOpts=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const tbody=document.getElementById('tbody');
+
+  if(!filtered.length){
+    tbody.innerHTML=`<tr class="empty-row"><td colspan="5">No products found</td></tr>`;
+    document.getElementById('count-disp').textContent='0';
+    document.getElementById('total-from').textContent=`${cfg.from} 0.00`;
+    document.getElementById('total-to').textContent=`${cfg.to} 0.00`;
+    return;
   }
-`;
 
-      try {
-        await graphqlRequest(mutation, { name, category, zar: priceZAR, mwk: priceMWK });
-        alert("✅ Product added successfully!");
-        nameInput.value = '';
-        document.getElementById('priceZAR').value = '';
-        loadProducts();
-      } catch(e) {
-        console.error("Add Product Failed:", e);
-      }
+  tbody.innerHTML=filtered.map(p=>{
+    const dispFrom=p.price_zar;
+    const dispTo=(p.price_zar*cfg.rate);
+    if(editingId===p.id){
+      const selOpts=cats.map(c=>`<option value="${c}"${c===p.category?' selected':''}>${c}</option>`).join('');
+      return `<tr>
+        <td><input class="edit-input" id="en-${p.id}" value="${p.name}"></td>
+        <td><select class="edit-input" id="ec-${p.id}">${selOpts}</select></td>
+        <td><input class="edit-input" id="ez-${p.id}" type="number" step="0.01" value="${p.price_zar}" style="width:80px;"></td>
+        <td class="mwk">${cfg.to} ${fmt(dispTo)}</td>
+        <td>
+          <button class="act-btn" onclick="saveEdit(${p.id})">Save</button>
+          <button class="act-btn" onclick="cancelEdit()">Cancel</button>
+        </td>
+      </tr>`;
     }
+    return `<tr>
+      <td class="name-cell">${p.name}</td>
+      <td><span class="cat-badge">${p.category}</span></td>
+      <td class="zar">${cfg.from} ${fmt(dispFrom)}</td>
+      <td class="mwk">${cfg.to} ${fmt(dispTo)}</td>
+      <td>
+        <button class="act-btn" onclick="startEdit(${p.id})">Edit</button>
+        <button class="act-btn del" onclick="deleteProduct(${p.id})">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
 
-    // Load Products
-    async function loadProducts() {
-      const query = `
-        query GetProducts {
-          products(order_by: {created_at: desc}) {
-            id name category price_zar price_mwk
-          }
-        }
-      `;
+  const tFrom=filtered.reduce((s,p)=>s+Number(p.price_zar),0);
+  const tTo=filtered.reduce((s,p)=>s+(Number(p.price_zar)*cfg.rate),0);
+  document.getElementById('count-disp').textContent=filtered.length;
+  document.getElementById('total-from').textContent=`${cfg.from} ${fmt(tFrom)}`;
+  document.getElementById('total-to').textContent=`${cfg.to} ${fmt(tTo)}`;
+}
 
-      try {
-        const data = await graphqlRequest(query);
-        renderProducts(data.products || []);
-      } catch(e) {
-        console.error("Load Products Failed:", e);
-      }
-    }
+function exportCSV(){
+  const s=document.getElementById('inp-search').value.toLowerCase();
+  const cf=document.getElementById('inp-cat-filter').value;
+  const filtered=products.filter(p=>(!s||p.name.toLowerCase().includes(s)||p.category.toLowerCase().includes(s))&&(!cf||p.category===cf));
+  if(!filtered.length){toast('Nothing to export',true);return;}
+  const rows=[['Name','Category',`Price (${cfg.from})`,`Price (${cfg.to})`],
+    ...filtered.map(p=>[p.name,p.category,p.price_zar,(p.price_zar*cfg.rate).toFixed(2)])];
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='products.csv';a.click();
+  toast('CSV exported');
+}
 
-    function renderProducts(products) {
-      const tbody = document.getElementById('productBody');
-      tbody.innerHTML = '';
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement.id!=='s-rate')addProduct();});
+document.getElementById('settings-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
 
-      if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty">No products yet.<br>Add some from South Africa ✨</td></tr>`;
-        document.getElementById('totalMWK').textContent = '0.00';
-        return;
-      }
-
-      products.forEach((p, idx) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><span class="product-name">${p.name}</span></td>
-          <td><span class="category">${p.category}</span></td>
-          <td><span class="price-zar">R ${formatNumber(p.price_zar)}</span></td>
-          <td><span class="price-mwk">MWK ${formatNumber(p.price_mwk)}</span></td>
-          <td>
-            <div class="menu-container">
-              <button class="dots-btn" onclick="toggleMenu(${idx}); event.stopImmediatePropagation();">⋮</button>
-              <div id="menu-${idx}" class="menu">
-                <button onclick="editProduct(${p.id}); toggleMenu(${idx});">✏️ Edit</button>
-                <button onclick="deleteProduct(${p.id}); toggleMenu(${idx});" style="color:#f87171;">🗑️ Delete</button>
-              </div>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      const total = products.reduce((sum, p) => sum + Number(p.price_mwk || 0), 0);
-      document.getElementById('totalMWK').textContent = formatNumber(total);
-    }
-
-    async function deleteProduct(id) {
-      if (!confirm("Delete this product?")) return;
-      const mutation = `mutation { delete_products_by_pk(id: ${id}) { id } }`;
-      try {
-        await graphqlRequest(mutation);
-        loadProducts();
-      } catch(e) { alert("Delete failed"); }
-    }
-
-    function editProduct(id) {
-      alert("Edit coming soon.\nFor now, delete and re-add.");
-    }
-
-    function toggleMenu(idx) {
-      document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
-      const menu = document.getElementById(`menu-${idx}`);
-      if (menu) menu.classList.toggle('show');
-    }
-
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.menu-container')) {
-        document.querySelectorAll('.menu').forEach(m => m.classList.remove('show'));
-      }
-    });
-
-    function filterProducts() { loadProducts(); }
-    function exportToCSV() { alert("CSV export coming soon."); }
-
-    // Initialize
-    window.onload = () => {
-      if (ADMIN_SECRET.includes("PASTE_YOUR_REAL")) {
-        alert("⚠️ Please replace ADMIN_SECRET with your real Nhost Admin Secret!");
-      }
-      loadProducts();
-    };
-
-    document.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') addProduct();
-    });
-  </script>
-</body>
-</html>
+loadCfg();updateRateUI();loadProducts();
+</script>
