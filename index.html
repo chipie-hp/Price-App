@@ -2533,9 +2533,38 @@
         const h=new Date().getHours();
         document.getElementById('welcome-greeting').textContent=h<12?'☀️ Good morning!':h<17?'🌤 Good afternoon!':'🌙 Good evening!';
         document.getElementById('welcome-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-        nameInput.addEventListener('input',function(){this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase());});
-        startBtn.addEventListener('click',()=>loginUser(nameInput.value.trim()));
-        nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')loginUser(nameInput.value.trim());});
+        nameInput.addEventListener('input',function(){
+            this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase());
+            // Show password field when Admin is typed
+            const pwWrap = document.getElementById('welcome-password-wrap');
+            const pwInput = document.getElementById('welcome-password-input');
+            const pwError = document.getElementById('welcome-password-error');
+            if (this.value.trim().toLowerCase() === 'admin') {
+                if (pwWrap) { pwWrap.style.display = 'block'; pwInput && pwInput.focus(); }
+                if (pwError) pwError.style.display = 'none';
+            } else {
+                if (pwWrap) pwWrap.style.display = 'none';
+                if (pwInput) pwInput.value = '';
+                if (pwError) pwError.style.display = 'none';
+            }
+        });
+        startBtn.addEventListener('click',()=>{
+            const name = nameInput.value.trim();
+            if (name.toLowerCase() === 'admin') {
+                const pwInput = document.getElementById('welcome-password-input');
+                const pwError = document.getElementById('welcome-password-error');
+                if (!pwInput || pwInput.value !== ADMIN_PASSWORD) {
+                    if (pwError) pwError.style.display = 'block';
+                    if (pwInput) { pwInput.style.borderColor = '#c0392b'; pwInput.focus(); }
+                    return;
+                }
+                if (pwError) pwError.style.display = 'none';
+            }
+            loginUser(name);
+        });
+        nameInput.addEventListener('keydown',e=>{
+            if(e.key==='Enter') startBtn.click();
+        });
         const lastUser=localStorage.getItem('linde_last_user');
         if(lastUser) nameInput.value=lastUser.replace(/\b\w/g,c=>c.toUpperCase());
 
@@ -3296,44 +3325,9 @@
     const ADMIN_PASSWORD = '120533';
     const LOCK_KEY = 'linde_app_locked';
 
-    // Show password field when user types "Admin"
-    (function initPasswordField() {
-        const nameInput = document.getElementById('welcome-manager-input');
-        const pwWrap    = document.getElementById('welcome-password-wrap');
-        const pwInput   = document.getElementById('welcome-password-input');
-        const pwError   = document.getElementById('welcome-password-error');
-        if (!nameInput || !pwWrap) return;
-        nameInput.addEventListener('input', function() {
-            const val = this.value.trim().toLowerCase();
-            if (val === 'admin') {
-                pwWrap.style.display = 'block';
-                pwInput.focus();
-                pwError.style.display = 'none';
-            } else {
-                pwWrap.style.display = 'none';
-                pwError.style.display = 'none';
-                pwInput.value = '';
-            }
-        });
-        // Allow Enter on password field to trigger login
-        pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('welcome-start-btn').click(); });
-    })();
-
-    // Override loginUser to intercept admin and check password
-    const _origLoginUserPw = loginUser;
-    loginUser = function(name) {
-        if (name.trim().toLowerCase() === ADMIN_NAME) {
-            const pwInput = document.getElementById('welcome-password-input');
-            const pwError = document.getElementById('welcome-password-error');
-            if (!pwInput || pwInput.value !== ADMIN_PASSWORD) {
-                if (pwError) { pwError.style.display = 'block'; }
-                if (pwInput) { pwInput.style.borderColor = '#c0392b'; pwInput.focus(); }
-                return;
-            }
-            if (pwError) pwError.style.display = 'none';
-        }
-        _origLoginUserPw(name);
-    };
+    // Wire Enter key on password field to start button
+    const _pwInp = document.getElementById('welcome-password-input');
+    if (_pwInp) _pwInp.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('welcome-start-btn').click(); });
 
     // ── App lock ──────────────────────────────────────────────────────
     function isAppLocked() { return localStorage.getItem(LOCK_KEY) === '1'; }
